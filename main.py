@@ -14,14 +14,49 @@ pygame.display.set_caption("Dice Racers")
 icon = pygame.image.load('icon.png')
 pygame.display.set_icon(icon)
 
+# create size 12 font
+font_grunge = {}
+font_grunge[12] = pygame.font.Font('CastileInlineGrunge.ttf', 12)
+
+font_helvetica = {}
+font_helvetica[12] = pygame.font.Font('helvetica.ttf', 12)
+
 # main game loop state
 running = True
 dice = [2, 4, 5, 6]
 
 
+def draw_text(text, size, x, y, color=(0, 0, 0), font="grunge"):
+
+    draw_me = False
+
+    if font == "grunge":
+        if size not in font_grunge:
+            print("Missing font size: " + str(size) + ", creating it now")
+            font_grunge[size] = pygame.font.Font('CastileInlineGrunge.ttf',
+                                                 size)
+
+        text = font_grunge[size].render(text, True, color)
+        draw_me = True
+
+    elif font == "helvetica":
+        if size not in font_helvetica:
+            print("Missing font size: " + str(size) + ", creating it now")
+            font_helvetica[size] = pygame.font.Font('helvetica.ttf', size)
+
+        text = font_helvetica[size].render(text, True, color)
+        draw_me = True
+
+    if draw_me:
+        screen.blit(text, (x, y))
+
+
 def draw_dice(side, x, y):
 
     dot_size = 4
+
+    # draw the dice background
+    pygame.draw.rect(screen, (255, 255, 255), (x - 20, y - 20, 40, 40))
 
     # draw the dice box outline
     pygame.draw.rect(screen, (0, 0, 0), (x - 20, y - 20, 40, 40), 2)
@@ -63,7 +98,11 @@ def draw_dice(side, x, y):
 
 def draw_screen():
     # clear the screen
-    screen.fill((255, 255, 255))
+    screen.fill((180, 255, 170))
+
+    # draw "Your Roll" at the top left
+    draw_text("Your Roll", 72, 15, 10)
+    draw_text("Your Combos", 72, 275, 10)
 
     # loop through dice and draw them all
     for i in range(len(dice)):
@@ -97,10 +136,34 @@ def draw_screen():
                 draw_dice(dice[j], 350, row_position)
 
                 # draw the pair formed by the remaining dice
-                draw_dice(dice[dice_spots[0]], 450, row_position)
-                draw_dice(dice[dice_spots[1]], 500, row_position)
+                draw_dice(dice[dice_spots[0]], 475, row_position)
+                draw_dice(dice[dice_spots[1]], 525, row_position)
+
+                # write the pair text offers
+                draw_text(offering_string,
+                          26,
+                          376,
+                          row_position - 14, (0, 0, 0),
+                          font="helvetica")
 
                 row_position += row_offset
+
+    # draw the game board itself
+    # the board has 11 columns
+    #
+    for i in range(2, 13):
+
+        start_y = 400
+        y_gap = 24
+        if i > 7:
+            offset = ((14 + i * -1) * y_gap)
+        else:
+            offset = (i * y_gap)
+        y = start_y - offset
+        y2 = start_y + offset
+
+        draw_text(str(i), 20, 50 + (i * 32), y, font="helvetica")
+        draw_text(str(i), 20, 50 + (i * 32), y2, font="helvetica")
 
     # update the screen
     pygame.display.update()
